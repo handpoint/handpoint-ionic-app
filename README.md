@@ -1,26 +1,18 @@
-This is a starter template for [Ionic](http://ionicframework.com/docs/) projects.
+# Handpoint hybrid App
 
-## How to use this template
+## Prerequisites
+* [Install node (v6.10.0)](https://nodejs.org/es/download/)
+* Update `npm` to Latest: `npm install -g npm`
+* Install `grunt`: `npm install -g grunt`
+* Install the ionic CLI (`npm install -g ionic`)
 
-*This template does not work on its own*. The shared files for each starter are found in the [ionic2-app-base repo](https://github.com/ionic-team/ionic2-app-base).
+## Getting Started
+* Clone this repository: `git clone https://github.com/handpoint/handpoint-ionic-app`.
+* Run `npm install` from the project root.
+* Run `ionic serve` in a terminal from the project root.
 
-To use this template, either create a new ionic project using the ionic node.js utility, or copy the files from this repository into the [Starter App Base](https://github.com/ionic-team/ionic2-app-base).
-
-### With the Ionic CLI:
-
-Take the name after `ionic2-starter-`, and that is the name of the template to be used when using the `ionic start` command below:
-
-```bash
-$ sudo npm install -g ionic cordova
-$ ionic start myBlank blank
-```
-
-Then, to run it, cd into `myBlank` and run:
-
-```bash
-$ ionic cordova platform add ios
-$ ionic cordova run ios
-```
-
-Substitute ios for android if not on a Mac.
+## Build
+### Android
+* Add platform `ionic add platform android`
+* Run `ionic cordova build android`
 
