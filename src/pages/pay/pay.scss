@@ -1,0 +1,26 @@
+page-pay {
+  ion-content {
+    background-image: url('../../assets/img/background.png');
+    background-size: cover;
+    .calc-input {
+      div.input {
+        color: white;
+        font-size: 2.5em;
+        text-align: right;
+      }
+    }
+    .calc-buttons {
+      .button-md,
+      .button {
+        /* Fallback for web browsers that don't support RGBa */
+        background-color: transparent;
+        /* RGBa with 0.6 opacity */
+        background-color: rgba(255, 255, 255, 0.3);
+        margin: 0;
+      }
+      .col {
+        padding: 2px;
+      }
+    }
+  }
+}

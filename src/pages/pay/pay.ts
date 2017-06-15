@@ -3,22 +3,21 @@ import { NavController } from 'ionic-angular';
 import { Platform } from 'ionic-angular';
 import { AlertController } from 'ionic-angular';
 
-import { SearchDevicesPage } from '../search-devices/search-devices';
 import { UtilService } from '../../services/util.service';
 
 declare var cordova;
 
 @Component({
-  selector: 'page-home',
-  templateUrl: 'home.html'
+  selector: 'page-pay',
+  templateUrl: 'pay.html'
 })
-export class HomePage {
+export class PayPage {
 
   private SHARED_SECRET: String = '0102030405060708091011121314151617181920212223242526272829303132';
-  private CONNECTION_METHOD_SIMULATOR: number = 2;
+
   public saleParams: any = {
     amount: 1000,
-    currency: cordova ? cordova.plugins.Handpoint.Currency.GBP : 826
+    currency: 826
   };
   public macAddress: string = '68:AA:D2:02:89:B6';
   public statusMessage: String;
@@ -32,8 +31,16 @@ export class HomePage {
     public platform: Platform) {
     // Is cordova available ?
     if (this.util.isCordova()) {
-      this.initSDK();
+      //this.initSDK();
     }
+  }
+
+  clicked(str: string) {
+    // TODO
+  }
+
+  delete() {
+    // TODO 
   }
 
   initSDK() {
@@ -118,35 +125,5 @@ export class HomePage {
       that.statusMessage = 'Plugin is not available on Browser platform';
     }
   }
-
-  connect(simulator: boolean) {
-    var that = this;
-
-    if (that.util.isCordova()) {
-      that.statusMessage = 'Connecting to ' + that.macAddress;
-      cordova.plugins.Handpoint.connect({
-        device: {
-          name: "SureSwipe3708",
-          address: that.macAddress,
-          port: "1",
-          connectionMethod: simulator ? cordova.plugins.Handpoint.ConnectionMethod.SIMULATOR : cordova.plugins.Handpoint.ConnectionMethod.BLUETOOTH
-        }
-      }, function (result) {
-        that.statusMessage = 'Connected to ' + that.macAddress;
-      }, function (error) {
-        that.statusMessage = 'Error connecting to ' + that.macAddress + ' ' + error;
-      });
-    } else {
-      that.statusMessage = 'Plugin is not available on Browser platform';
-    }
-  }
-
-  searchDevices() {
-    var connectionMethod = this.util.isCordova() ? cordova.plugins.Handpoint.ConnectionMethod.BLUETOOTH : this.CONNECTION_METHOD_SIMULATOR;
-    this.navCtrl.push(SearchDevicesPage, {
-      connectionMethod: connectionMethod
-    });
-  }
-
 
 }
