@@ -3,7 +3,6 @@ import { Injectable, NgZone } from '@angular/core';
 import { Platform } from 'ionic-angular';
 
 import { CurrencyService } from './currency.service';
-import { DataService } from './data.service';
 import { UtilService } from './util.service';
 
 import { Events } from 'ionic-angular';
@@ -40,28 +39,32 @@ export class SdkService {
     return new Promise((resolve, reject) => {
       this.platform.ready().then(() => {
         this.storage.ready().then(() => {
-          // Init SDK with shared secret
-          cordova.plugins.Handpoint.init({
-            sharedSecret: that.SHARED_SECRET,
-          }, function (result) {
-            // Connect to default device
-            cordova.plugins.Handpoint.connect({
-              device: {
-                name: "SureSwipe3708",
-                address: that.macAddress,
-                port: "1",
-                connectionMethod: cordova.plugins.Handpoint.ConnectionMethod.BLUETOOTH
-              }
+          if (that.util.isCordova()) {
+            // Init SDK with shared secret
+            cordova.plugins.Handpoint.init({
+              sharedSecret: that.SHARED_SECRET,
             }, function (result) {
-              resolve();
+              // Connect to default device
+              cordova.plugins.Handpoint.connect({
+                device: {
+                  name: "SureSwipe3708",
+                  address: that.macAddress,
+                  port: "1",
+                  connectionMethod: cordova.plugins.Handpoint.ConnectionMethod.BLUETOOTH
+                }
+              }, function (result) {
+                resolve();
+              }, function (error) {
+                that.util.toast('Error connecting device ' + error);
+                reject();
+              });
             }, function (error) {
-              that.util.toast('Error connecting device ' + error);
+              that.util.toast('Error on SDK init ' + error);
               reject();
             });
-          }, function (error) {
-            that.util.toast('Error on SDK init ' + error);
-            reject();
-          });
+          } else {
+            resolve();
+          }
         });
       });
     });
@@ -89,7 +92,7 @@ export class SdkService {
     var that = this;
 
     if (that.util.isCordova()) {
-      if (config)  {
+      if (config) {
         cordova.plugins.Handpoint[method](config, callback, function (error) {
           that.util.toast('SDK error method ' + method + ': ' + error);
         });

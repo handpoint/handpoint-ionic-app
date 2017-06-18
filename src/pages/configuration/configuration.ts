@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 
 import { SearchDevicesPage } from '../search-devices/search-devices';
+import { LogPage } from '../log/log';
 
 import { UtilService } from '../../services/util.service';
 import { CurrencyService } from '../../services/currency.service';
@@ -36,6 +37,10 @@ export class ConfigurationPage {
     this.navCtrl.push(SearchDevicesPage, {
       connectionMethod: connectionMethod
     });
+  }
+
+  log() {
+    this.navCtrl.push(LogPage);
   }
 
   updateCurrency() {

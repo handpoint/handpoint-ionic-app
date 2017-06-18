@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { NavController, LoadingController } from 'ionic-angular';
 import { Platform } from 'ionic-angular';
 import { AlertController } from 'ionic-angular';
 
@@ -15,7 +15,7 @@ import { SdkService } from '../../services/sdk.service';
 export class PayPage {
 
   public mode: string = 'pay';
-  private amount: string = '';
+  private amount: string = '0';
   private amountFormatted: string = '0';
   public saleParams: any = {
     amount: 0,
@@ -31,16 +31,27 @@ export class PayPage {
     public data: DataService,
     public currencyService: CurrencyService,
     public sdk: SdkService,
+    public loadingCtrl: LoadingController,
     public platform: Platform) {
+
+    let loading = this.loadingCtrl.create({
+      content: 'Please wait...'
+    });
+    loading.present();
+
     this.currency = this.currencyService.getDefaultCode();
     this.currencyFractionSize = this.currencyService.getDefault().fractionSize;
-    this.saleParams.currency = this.currencyService.getDefaultCode();
+    this.saleParams.currency = this.currencyService.getDefault().numCode;
+    this.sdk.init().then(() => {
+      loading.dismiss();
+    });
   }
 
   ionViewWillEnter() {
     this.data.getCurrencyFromLocalStorage().then(() => {
       this.currency = this.data.currency.code;
       this.currencyFractionSize = this.data.currency.fractionSize;
+      this.saleParams.currency = this.data.currency.numCode;
       this.formatAmount();
     });
   }
@@ -69,15 +80,19 @@ export class PayPage {
 
   sale() {
     var that = this;
-    this.sdk.call('sale', function (result) {
-      that.util.toast('Sale done');
-    }, this.saleParams);
+
+    that.saleParams.amount = parseInt(that.amount);
+    that.sdk.call('sale', function (result) {
+      // TODO waiting for card
+    }, that.saleParams);
   }
 
   refund() {
     var that = this;
+
+    that.saleParams.amount = parseInt(that.amount);
     this.sdk.call('refund', function (result) {
-      that.util.toast('Refund done');
+      // TODO waiting for card
     }, this.saleParams);
   }
 

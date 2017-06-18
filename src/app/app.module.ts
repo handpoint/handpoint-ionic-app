@@ -8,6 +8,7 @@ import { PaymentsPage } from '../pages/payments/payments';
 import { ConfigurationPage } from '../pages/configuration/configuration';
 import { PayPage } from '../pages/pay/pay';
 import { TabsPage } from '../pages/tabs/tabs';
+import { LogPage } from '../pages/log/log';
 import { SearchDevicesPage } from '../pages/search-devices/search-devices';
 
 import { UtilService } from '../services/util.service';
@@ -26,6 +27,7 @@ import { Toast } from '@ionic-native/toast';
     ConfigurationPage,
     PayPage,
     TabsPage,
+    LogPage,
     SearchDevicesPage
   ],
   imports: [
@@ -40,6 +42,7 @@ import { Toast } from '@ionic-native/toast';
     ConfigurationPage,
     PayPage,
     TabsPage,
+    LogPage,
     SearchDevicesPage
   ],
   providers: [
