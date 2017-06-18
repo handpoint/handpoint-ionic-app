@@ -1,10 +1,12 @@
-<ion-header>
-  <ion-navbar>
-    <ion-title>Pay</ion-title>
-  </ion-navbar>
-</ion-header>
-
 <ion-content padding>
+
+  <ion-grid>
+    <ion-row>
+      <ion-col col-3 col-sm-2 col-md-4 col-lg-4 col-xl-4></ion-col>
+      <ion-col col-6 col-sm-8 col-md-4 col-lg-4 col-xl-4><img src="assets/img/handpoint-logo.png"></ion-col>
+      <ion-col col-3 col-sm-2 col-md-4 col-lg-4 col-xl-4></ion-col>
+    </ion-row>
+  </ion-grid>
 
   <div *ngIf="statusMessage">
     <h2>Status:</h2>
@@ -14,12 +16,29 @@
   <ion-grid class="calc-input">
     <ion-row>
       <ion-col>
-        <div class="input">{{ saleParams.amount | currency:'USD':true:'2.2-4' }}</div>
+        <div class="input">{{ amountFormatted | currency:currency:true:'1.' + currencyFractionSize }}</div>
       </ion-col>
     </ion-row>
-    <ion-row>
-      <ion-col>
-        <button large ion-button block (click)="sale()">Pay</button>
+  </ion-grid>
+
+  <div padding>
+    <ion-segment [(ngModel)]="mode">
+      <ion-segment-button value="pay">
+        Pay
+      </ion-segment-button>
+      <ion-segment-button value="refund">
+        Refund
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <ion-grid class="calc-input">
+    <ion-row [ngSwitch]="mode">
+      <ion-col *ngSwitchCase="'pay'">
+        <button large ion-button block (click)="pay()">Pay</button>
+      </ion-col>
+      <ion-col *ngSwitchCase="'refund'">
+        <button large ion-button block (click)="refund()">Refund</button>
       </ion-col>
     </ion-row>
   </ion-grid>

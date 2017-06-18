@@ -4,6 +4,8 @@ import { NavController } from 'ionic-angular';
 import { SearchDevicesPage } from '../search-devices/search-devices';
 
 import { UtilService } from '../../services/util.service';
+import { CurrencyService } from '../../services/currency.service';
+import { DataService } from '../../services/data.service';
 
 declare var cordova;
 
@@ -15,8 +17,18 @@ export class ConfigurationPage {
 
   private CONNECTION_METHOD_SIMULATOR: number = 2;
 
-  constructor(public navCtrl: NavController, public util: UtilService) {
+  public currencyCode: string;
 
+  public currencies: any[];
+
+  constructor(public navCtrl: NavController, public data: DataService, public util: UtilService, public currencyService: CurrencyService) {
+    this.currencies = this.currencyService.getAll();
+  }
+
+  ionViewWillEnter() {
+    this.data.getCurrencyFromLocalStorage().then(() => {
+      this.currencyCode = this.data.currency.code;
+    });
   }
 
   searchDevices() {
@@ -24,6 +36,10 @@ export class ConfigurationPage {
     this.navCtrl.push(SearchDevicesPage, {
       connectionMethod: connectionMethod
     });
+  }
+
+  updateCurrency() {
+    this.data.setCurrency(this.currencyCode);
   }
 
 }

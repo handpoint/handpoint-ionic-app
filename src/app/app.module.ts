@@ -1,7 +1,8 @@
 import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
-import { MyApp } from './app.component';
+import { HandpointApp } from './app.component';
+import { IonicStorageModule } from '@ionic/storage'
 
 import { PaymentsPage } from '../pages/payments/payments';
 import { ConfigurationPage } from '../pages/configuration/configuration';
@@ -10,13 +11,16 @@ import { TabsPage } from '../pages/tabs/tabs';
 import { SearchDevicesPage } from '../pages/search-devices/search-devices';
 
 import { UtilService } from '../services/util.service';
+import { CurrencyService } from '../services/currency.service';
+import { DataService } from '../services/data.service';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
+import { Toast } from '@ionic-native/toast';
 
 @NgModule({
   declarations: [
-    MyApp,
+    HandpointApp,
     PaymentsPage,
     ConfigurationPage,
     PayPage,
@@ -25,11 +29,12 @@ import { SplashScreen } from '@ionic-native/splash-screen';
   ],
   imports: [
     BrowserModule,
-    IonicModule.forRoot(MyApp)
+    IonicModule.forRoot(HandpointApp),
+    IonicStorageModule.forRoot()
   ],
   bootstrap: [IonicApp],
   entryComponents: [
-    MyApp,
+    HandpointApp,
     PaymentsPage,
     ConfigurationPage,
     PayPage,
@@ -37,9 +42,12 @@ import { SplashScreen } from '@ionic-native/splash-screen';
     SearchDevicesPage
   ],
   providers: [
+    DataService,
+    CurrencyService,
     UtilService,
     StatusBar,
     SplashScreen,
+    Toast,
     { provide: ErrorHandler, useClass: IonicErrorHandler }
   ]
 })

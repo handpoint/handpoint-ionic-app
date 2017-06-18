@@ -4,6 +4,8 @@ import { Platform } from 'ionic-angular';
 import { AlertController } from 'ionic-angular';
 
 import { UtilService } from '../../services/util.service';
+import { DataService } from '../../services/data.service';
+import { CurrencyService } from '../../services/currency.service';
 
 declare var cordova;
 
@@ -15,32 +17,65 @@ export class PayPage {
 
   private SHARED_SECRET: String = '0102030405060708091011121314151617181920212223242526272829303132';
 
+  public mode: string = 'pay';
+  private amount: string = '';
+  private amountFormatted: string = '0';
   public saleParams: any = {
-    amount: 1000,
+    amount: 0,
     currency: 826
   };
   public macAddress: string = '68:AA:D2:02:89:B6';
   public statusMessage: String;
   public events: any[] = [];
 
+  public currency: string;
+  public currencyFractionSize: number;
+
   constructor(
     private _ngZone: NgZone,
     public alertCtrl: AlertController,
     public navCtrl: NavController,
     public util: UtilService,
+    public data: DataService,
+    public currencyService: CurrencyService,
     public platform: Platform) {
-    // Is cordova available ?
+    // TODO this is not the proper place for init
+    // Is cordova available ? 
     if (this.util.isCordova()) {
-      //this.initSDK();
+      this.initSDK();
+    }
+    this.currency = this.currencyService.getDefaultCode();
+    this.currencyFractionSize = this.currencyService.getDefault().fractionSize;
+  }
+
+  ionViewWillEnter() {
+    this.data.getCurrencyFromLocalStorage().then(() => {
+      this.currency = this.data.currency.code;
+      this.currencyFractionSize = this.data.currency.fractionSize;
+      this.formatAmount();
+    });
+  }
+
+  formatAmount() {
+    // Format amount
+    if (this.currencyFractionSize && this.currencyFractionSize > 0) {
+      this.amountFormatted = this.util.formatCurrency(this.amount, this.currencyFractionSize);
     }
   }
 
   clicked(str: string) {
-    // TODO
+    this.amount = this.amount + str;
+    if (parseFloat(this.amount) == 0) {
+      this.amount = '0';
+    }
+    this.amountFormatted = this.util.formatCurrency(this.amount, this.currencyFractionSize);
   }
 
   delete() {
-    // TODO 
+    if (this.amount && this.amount.length > 0) {
+      this.amount = this.amount.slice(0, -1);
+      this.amountFormatted = this.util.formatCurrency(this.amount, this.currencyFractionSize);
+    }
   }
 
   initSDK() {
@@ -63,10 +98,10 @@ export class PayPage {
       }, function (result) {
         that.statusMessage = 'Connected to device 68:AA:D2:02:89:B6';
       }, function (error) {
-        that.statusMessage = 'Error connecting device ' + error;
+        that.util.toast('Error connecting device ' + error);
       });
     }, function (error) {
-      that.statusMessage = 'Error on SDK init ' + error;
+      that.util.toast('Error on SDK init ' + error);
     });
   }
 
@@ -83,10 +118,10 @@ export class PayPage {
           that.events.push(event);
         });
       }, function (error) {
-        that.statusMessage = 'Error registering event handler ' + error;
+        that.util.toast('Error registering event handler ' + error);
       });
     } else {
-      that.statusMessage = 'Plugin is not available on Browser platform';
+      that.util.toast('Bluetooth is not available on Browser platform');
     }
   }
 
@@ -101,17 +136,17 @@ export class PayPage {
       }, function (result) {
         that.events.push(result);
       }, function (error) {
-        that.statusMessage = 'Error listDevices ' + error;
+        that.util.toast('Error discovering devices ' + error);
       });
     } else {
-      that.statusMessage = 'Plugin is not available on Browser platform';
+      that.util.toast('Bluetooth is not available on Browser platform');
     }
   }
 
   /**
    * Initiates a sale transaction
    */
-  sale() {
+  pay() {
     var that = this;
     that.statusMessage = 'Loading sale… ';
     if (that.util.isCordova()) {
@@ -119,11 +154,15 @@ export class PayPage {
       cordova.plugins.Handpoint.sale(that.saleParams, function (result) {
         that.statusMessage = 'Sale completed ';
       }, function (error) {
-        that.statusMessage = 'Error running plugin ' + error;
+        that.util.toast('Error running plugin ' + error);
       });
     } else {
-      that.statusMessage = 'Plugin is not available on Browser platform';
+      that.util.toast('Bluetooth is not available on Browser platform');
     }
+  }
+
+  refund() {
+    // TODO
   }
 
 }
