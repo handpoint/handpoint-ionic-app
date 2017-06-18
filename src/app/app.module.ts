@@ -13,6 +13,7 @@ import { SearchDevicesPage } from '../pages/search-devices/search-devices';
 import { UtilService } from '../services/util.service';
 import { CurrencyService } from '../services/currency.service';
 import { DataService } from '../services/data.service';
+import { SdkService } from '../services/sdk.service';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
@@ -42,6 +43,7 @@ import { Toast } from '@ionic-native/toast';
     SearchDevicesPage
   ],
   providers: [
+    SdkService,
     DataService,
     CurrencyService,
     UtilService,

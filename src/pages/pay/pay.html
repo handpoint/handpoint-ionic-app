@@ -8,11 +8,6 @@
     </ion-row>
   </ion-grid>
 
-  <div *ngIf="statusMessage">
-    <h2>Status:</h2>
-    <p>{{ statusMessage }}</p>
-  </div>
-
   <ion-grid class="calc-input">
     <ion-row>
       <ion-col>
@@ -35,7 +30,7 @@
   <ion-grid class="calc-input">
     <ion-row [ngSwitch]="mode">
       <ion-col *ngSwitchCase="'pay'">
-        <button large ion-button block (click)="pay()">Pay</button>
+        <button large ion-button block (click)="sale()">Pay</button>
       </ion-col>
       <ion-col *ngSwitchCase="'refund'">
         <button large ion-button block (click)="refund()">Refund</button>
@@ -89,10 +84,5 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-
-  <h2>Event log</h2>
-  <ul>
-    <li *ngFor="let event of events">{{ event }}</li>
-  </ul>
 
 </ion-content>
