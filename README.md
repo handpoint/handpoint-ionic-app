@@ -1,5 +1,7 @@
 # Handpoint hybrid App
 
+<img height="200" src="https://user-images.githubusercontent.com/3254688/27279547-3f1d9536-54e5-11e7-8041-5921ddc5003c.jpg"/>
+
 ## Prerequisites
 * [Install node (v6.10.0)](https://nodejs.org/es/download/)
 * Update `npm` to Latest: `npm install -g npm`
