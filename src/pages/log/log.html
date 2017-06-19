@@ -1,6 +1,13 @@
-<ion-content padding>
-  <h2>Event log</h2>
+<ion-header>
+  <ion-navbar>
+    <ion-title>Event log</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="page-bg" padding>
   <ul>
-    <li *ngFor="let event of sdk.eventLog">{{ event }}</li>
+    <li *ngFor="let event of sdk.eventLog">
+      <pre>{{ event | json }}</pre>
+    </li>
   </ul>
 </ion-content>

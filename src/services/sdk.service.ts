@@ -78,7 +78,7 @@ export class SdkService {
       cordova.plugins.Handpoint.eventHandler(function (event) {
         // Run asynchronous call inside Angular execution context so data binding works
         that._ngZone.run(() => {
-          that.eventLog.push(event);
+          that.eventLog.unshift(event);
         });
       }, function (error) {
         that.util.toast('Error registering SDK event handler ' + error);

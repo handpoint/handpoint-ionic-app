@@ -4,20 +4,20 @@
   </ion-navbar>
 </ion-header>
 
-<ion-content padding>
+<ion-content class="page-bg" padding>
 
   <ion-list>
-    <ion-item>
-      <button ion-button clear (click)="searchDevices()"><ion-icon name="ios-search-outline"></ion-icon> Search Devices</button>
+    <ion-item (click)="searchDevices()">
+      <ion-icon name="ios-search-outline" item-start></ion-icon>
+      Search Devices
     </ion-item>
-    <ion-item>
-      <button ion-button clear (click)="log()"><ion-icon name="ios-list-box-outline"></ion-icon> Logs</button>
+    <ion-item (click)="log()">
+      <ion-icon name="ios-list-box-outline" item-start></ion-icon>
+      Logs
     </ion-item>
     <ion-item>
       <ion-icon name="ios-cash-outline" item-left></ion-icon>
-      <ion-label>
-        <h2>Currency</h2>
-      </ion-label>
+      <ion-label>Currency</ion-label>
       <ion-select item-right [(ngModel)]="currencyCode" name="currency" (ionChange)="updateCurrency()">
         <ion-option *ngFor="let currency of currencies" [value]="currency.code">{{ currency.name }} <span *ngIf="currency.symbol">({{ currency.symbol.grapheme }})</span></ion-option>
       </ion-select>

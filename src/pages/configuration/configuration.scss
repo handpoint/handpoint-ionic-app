@@ -1,1 +1,16 @@
-page-configuration {}
+page-configuration {
+  ion-item {
+    &.item,
+    &.item-md {
+      color: white;
+    }
+  }
+  .item-select {
+    ion-label {
+      &.label,
+      &.label-md {
+        color: white;
+      }
+    }
+  }
+}
