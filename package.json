@@ -26,6 +26,7 @@
         "@ionic-native/toast": "^3.12.1",
         "@ionic/storage": "2.0.1",
         "cordova-plugin-console": "1.0.5",
+        "cordova-plugin-customurlscheme": "git+https://github.com/EddyVerbruggen/Custom-URL-scheme.git",
         "cordova-plugin-device": "1.1.4",
         "cordova-plugin-handpoint": "git+https://github.com/handpoint/cordova-plugin-handpoint.git",
         "cordova-plugin-splashscreen": "~4.0.1",
@@ -55,6 +56,12 @@
             "cordova-plugin-statusbar": {},
             "cordova-plugin-whitelist": {},
             "ionic-plugin-keyboard": {},
+            "cordova-plugin-customurlscheme": {
+                "URL_SCHEME": "handpoint",
+                "ANDROID_SCHEME": " ",
+                "ANDROID_HOST": " ",
+                "ANDROID_PATHPREFIX": "/"
+            },
             "cordova-plugin-handpoint": {}
         }
     }

@@ -79,7 +79,7 @@ export class HomePage {
         that.statusMessage = 'Error registering event handler ' + error;
       });
     } else {
-      that.statusMessage = 'Plugin is not available on Browser platform';
+      that.statusMessage = 'Plugin is not available in Browser platform';
     }
   }
 
@@ -97,7 +97,7 @@ export class HomePage {
         that.statusMessage = 'Error listDevices ' + error;
       });
     } else {
-      that.statusMessage = 'Plugin is not available on Browser platform';
+      that.statusMessage = 'Plugin is not available in Browser platform';
     }
   }
 
@@ -115,7 +115,7 @@ export class HomePage {
         that.statusMessage = 'Error running plugin ' + error;
       });
     } else {
-      that.statusMessage = 'Plugin is not available on Browser platform';
+      that.statusMessage = 'Plugin is not available in Browser platform';
     }
   }
 
@@ -137,7 +137,7 @@ export class HomePage {
         that.statusMessage = 'Error connecting to ' + that.macAddress + ' ' + error;
       });
     } else {
-      that.statusMessage = 'Plugin is not available on Browser platform';
+      that.statusMessage = 'Plugin is not available in Browser platform';
     }
   }
 

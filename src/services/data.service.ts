@@ -35,7 +35,7 @@ export class DataService {
     });
   }
 
-  setCurrency(code?: string) {
+  setCurrency(code?: string): Promise<any> {
     let currencyObj;
 
     if (code) {
@@ -46,30 +46,40 @@ export class DataService {
       currencyObj.code = this.currencyService.getDefaultCode();
     }
 
-    if (currencyObj) {
-      // Save to local storage
-      this.storage.set('currency', currencyObj);
-    } else {
-      console.error('No currency found ', code);
-    }
+    return this.storage.ready().then(() => {
+      if (currencyObj) {
+        // Save to local storage
+        this.storage.set('currency', currencyObj);
+      } else {
+        console.error('No currency found ', code);
+      }
+    });
 
   }
 
-  set(key: string, value: any) {
-    this[key] = value; // Save component attribute  
-    this.storage.set(key, value); // Save in local storage
-  }
-
-  getSharedSecretFromLocalStorage() {
+  setSharedSecret(secret: string): Promise<any> {
+    this.sharedSecret = secret;
     return new Promise((resolve, reject) => {
-      this.storage.get('sharedSecret').then((sharedSecret) => {
-        if (sharedSecret) {
-          this.sharedSecret = sharedSecret;
-        } else {
-          // TODO remove this else (it is for testing purposes only)
-          this.sharedSecret = '0102030405060708091011121314151617181920212223242526272829303132';
-        }
-        resolve();
+      this.storage.ready().then(() => {
+        // Save in local storage
+        this.storage.set('sharedSecret', secret).then(() => {
+          resolve();
+        });
+      });
+    });
+  }
+
+  getSharedSecretFromLocalStorage(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.storage.ready().then(() => {
+        this.storage.get('sharedSecret').then((sharedSecret) => {
+          if (sharedSecret) {
+            this.sharedSecret = sharedSecret;
+            resolve(this.sharedSecret);
+          } else {
+            resolve();
+          }
+        });
       });
     });
   }

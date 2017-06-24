@@ -39,7 +39,7 @@ export class SearchDevicesPage {
         // TODO 'Error connecting to ' + that.macAddress + ' ' + error;
       });
     } else {
-      // TODO 'Plugin is not available on Browser platform';
+      // TODO 'Plugin is not available in Browser platform';
     }
   }
 

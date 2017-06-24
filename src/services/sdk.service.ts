@@ -4,6 +4,7 @@ import { Platform } from 'ionic-angular';
 
 import { CurrencyService } from './currency.service';
 import { UtilService } from './util.service';
+import { DataService } from './data.service';
 
 import { Events } from 'ionic-angular';
 
@@ -20,10 +21,12 @@ export class SdkService {
   public eventLog: any[] = [];
 
   public macAddress: string = '68:AA:D2:02:89:B6';
+  public initialized: Promise<any>;
 
   constructor(
     private _ngZone: NgZone,
     public util: UtilService,
+    public data: DataService,
     public events: Events,
     public storage: Storage,
     public platform: Platform,
@@ -33,34 +36,68 @@ export class SdkService {
     this.configureEventHandler();
   }
 
-  init(sharedSecret?: string) {
+  init(): Promise<any> {
     var that = this;
 
-    return new Promise((resolve, reject) => {
-      this.platform.ready().then(() => {
-        this.storage.ready().then(() => {
-          if (that.util.isCordova()) {
-            // Init SDK with shared secret
-            cordova.plugins.Handpoint.init({
-              sharedSecret: that.SHARED_SECRET,
-            }, function (result) {
-              // Connect to default device
-              cordova.plugins.Handpoint.connect({
-                device: {
-                  name: "SureSwipe3708",
-                  address: that.macAddress,
-                  port: "1",
-                  connectionMethod: cordova.plugins.Handpoint.ConnectionMethod.BLUETOOTH
+    if (!that.initialized) {
+      that.initialized = new Promise((resolve, reject) => {
+        that.platform.ready().then(() => {
+          that.storage.ready().then(() => {
+            if (that.util.isCordova()) {
+              that.data.getSharedSecretFromLocalStorage().then((sharedSecret) => {
+                if (sharedSecret) {
+                  // Init SDK with shared secret
+                  cordova.plugins.Handpoint.init({
+                    sharedSecret: sharedSecret,
+                  }, function (result) {
+                    // TODO get mac of default device from storage
+                    cordova.plugins.Handpoint.connect({
+                      device: {
+                        name: "SureSwipe3708",
+                        address: that.macAddress,
+                        port: "1",
+                        connectionMethod: cordova.plugins.Handpoint.ConnectionMethod.BLUETOOTH
+                      }
+                    }, function (result) {
+                      resolve();
+                    }, function (error) {
+                      that.util.toast('Error connecting device ' + error);
+                      resolve();
+                    });
+                  }, function (error) {
+                    that.util.toast('Error on SDK init ' + error);
+                    resolve();
+                  });
+                } else {
+                  resolve();
+                  that.util.toast('Shared secret not configured');
                 }
-              }, function (result) {
-                resolve();
-              }, function (error) {
-                that.util.toast('Error connecting device ' + error);
-                reject();
               });
-            }, function (error) {
-              that.util.toast('Error on SDK init ' + error);
-              reject();
+            } else {
+              resolve();
+            }
+          });
+        });
+      });
+      return that.initialized;
+    } else {
+      return that.initialized;
+    }
+  }
+
+  setSharedSecret(sharedSecret: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      // Wait for sdk initializacion
+      this.initialized.then(() => {
+        // Save shared secret on storage and then set it up into SDK
+        this.data.setSharedSecret(sharedSecret).then(() => {
+          if (this.util.isCordova()) {
+            cordova.plugins.Handpoint.setSharedSecret({
+              sharedSecret: sharedSecret,
+            }, function (result) {
+              resolve(result);
+            }, function (err) {
+              reject(err);
             });
           } else {
             resolve();
@@ -84,7 +121,7 @@ export class SdkService {
         that.util.toast('Error registering SDK event handler ' + error);
       });
     } else {
-      that.util.toast('Bluetooth is not available on Browser platform');
+      that.util.toast('Bluetooth is not available in Browser platform');
     }
   }
 
@@ -102,7 +139,7 @@ export class SdkService {
         });
       }
     } else {
-      that.util.toast('Bluetooth is not available on Browser platform');
+      that.util.toast('Bluetooth is not available in Browser platform');
     }
   }
 
@@ -120,7 +157,7 @@ export class SdkService {
         that.util.toast('Error discovering devices ' + error);
       });
     } else {
-      that.util.toast('Bluetooth is not available on Browser platform');
+      that.util.toast('Bluetooth is not available in Browser platform');
     }
   }*/
 

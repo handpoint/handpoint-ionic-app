@@ -2,7 +2,8 @@
 <widget id="com.handpoint.ionic" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Handpoint payments</name>
     <description>An hybrid handpoint app</description>
-    <author email="info@handpoint.com" href="http://www.handpoint.com/">Handpoint Team</author>
+    <author email="info@handpoint.com" href="http://www.handpoint.com/">Handpoint Team
+    </author>
     <content src="index.html" />
     <access origin="*" />
     <allow-navigation href="http://ionic.local/*" />
@@ -22,6 +23,7 @@
     <preference name="SplashShowOnlyFirstTime" value="false" />
     <preference name="SplashScreen" value="screen" />
     <preference name="SplashScreenDelay" value="3000" />
+    <preference name="AndroidLaunchMode" value="singleTask" />
     <platform name="android">
         <allow-intent href="market:*" />
         <icon density="ldpi" src="resources/android/icon/drawable-ldpi-icon.png" />
@@ -78,6 +80,12 @@
         <splash height="480" src="resources/ios/splash/Default~iphone.png" width="320" />
     </platform>
     <plugin name="cordova-plugin-console" spec="1.0.5" />
+    <plugin name="cordova-plugin-customurlscheme" spec="git+https://github.com/EddyVerbruggen/Custom-URL-scheme.git">
+        <variable name="URL_SCHEME" value="handpoint" />
+        <variable name="ANDROID_SCHEME" value=" " />
+        <variable name="ANDROID_HOST" value=" " />
+        <variable name="ANDROID_PATHPREFIX" value="/" />
+    </plugin>
     <plugin name="cordova-plugin-device" spec="1.1.4" />
     <plugin name="cordova-plugin-handpoint" spec="git+https://github.com/handpoint/cordova-plugin-handpoint.git" />
     <plugin name="cordova-plugin-splashscreen" spec="~4.0.1" />
