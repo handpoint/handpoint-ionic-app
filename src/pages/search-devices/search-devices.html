@@ -1,18 +1,38 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>Search devices</ion-title>
+    <ion-title>Scan devices</ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content class="page-bg" padding>
 
-  <ion-list>
-    <ion-item>
+  <h1 *ngIf="devices && devices.length > 0">Connect to device</h1>
 
-    </ion-item>
-    <ion-item>
-      <button large ion-button block (click)="connect()">Connect</button>
-    </ion-item>
+  <ion-list>
+    <ion-card ion-item *ngFor="let device of devices" (click)="connect(device)">
+      <ion-card-header>
+        {{ device.name }}
+      </ion-card-header>
+      <ion-card-content>
+        {{ device.address }}
+      </ion-card-content>
+    </ion-card>
   </ion-list>
+
+  <ion-grid class="default-message" *ngIf="!devices || (devices && devices.length === 0)" (click)="scan()">
+    <ion-row>
+      <ion-col text-center>
+        <ion-icon class="header" name="ios-alert-outline"></ion-icon>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col text-center>
+        <h2 class="title">No devices found</h2>
+        <h4>Click to scan again</h4>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <button *ngIf="finishScan && devices && devices.length > 0" (click)="scan()" ion-button color="light" clear><ion-icon margin-right name="ios-bluetooth-outline" item-start></ion-icon> Scan again</button>
 
 </ion-content>

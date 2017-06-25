@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, LoadingController } from 'ionic-angular';
 
 import { UtilService } from '../../services/util.service';
+import { SdkService } from '../../services/sdk.service';
 
 declare var cordova;
 
@@ -12,31 +13,44 @@ declare var cordova;
 })
 export class SearchDevicesPage {
 
-  public devices: any[];
+  public devices: any[] = [];
+  public finishScan: boolean = false;
 
   constructor(
     public navCtrl: NavController,
-    public navParams: NavParams,
+    public sdk: SdkService,
+    public loadingCtrl: LoadingController,
     public util: UtilService) {
-    //this.devices = this.navParams.data.device;
+
   }
 
-  connect(simulator: boolean) {
+  ionViewWillEnter() {
+    this.scan();
+  }
+
+  scan() {
+    this.finishScan = false;
+    this.sdk.deviceDiscovery().then((data) => {
+      this.devices = data.devices;
+      this.finishScan = true;
+    });
+  }
+
+  connect(device: any) {
     var that = this;
 
     if (that.util.isCordova()) {
-      // TODO 'Connecting to ' + that.macAddress;
       cordova.plugins.Handpoint.connect({
         device: {
-          name: "SureSwipe3708",
-          address: "MAC_ADDRESS",
+          name: device.name,
+          address: device.address,
           port: "1",
-          connectionMethod: simulator ? cordova.plugins.Handpoint.ConnectionMethod.SIMULATOR : cordova.plugins.Handpoint.ConnectionMethod.BLUETOOTH
+          connectionMethod: cordova.plugins.Handpoint.ConnectionMethod.BLUETOOTH
         }
       }, function (result) {
-        // TODO 'Connected to ' + that.macAddress;
+        that.util.toast('Successfully connected to ' + device.name);
       }, function (error) {
-        // TODO 'Error connecting to ' + that.macAddress + ' ' + error;
+        that.util.toast('Error connecting to ' + device.name + ' ' + error);
       });
     } else {
       // TODO 'Plugin is not available in Browser platform';

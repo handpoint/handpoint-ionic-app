@@ -1,12 +1,10 @@
 import { Storage } from '@ionic/storage';
 import { Injectable, NgZone } from '@angular/core';
-import { Platform } from 'ionic-angular';
+import { Platform, LoadingController, Events } from 'ionic-angular';
 
 import { CurrencyService } from './currency.service';
 import { UtilService } from './util.service';
 import { DataService } from './data.service';
-
-import { Events } from 'ionic-angular';
 
 declare var cordova;
 
@@ -30,6 +28,7 @@ export class SdkService {
     public events: Events,
     public storage: Storage,
     public platform: Platform,
+    public loadingCtrl: LoadingController,
     public currencyService: CurrencyService) {
 
     // Set event handler function
@@ -116,6 +115,8 @@ export class SdkService {
         // Run asynchronous call inside Angular execution context so data binding works
         that._ngZone.run(() => {
           that.eventLog.unshift(event);
+          // Publish event
+          that.events.publish("sdk:" + event.event, event.data);
         });
       }, function (error) {
         that.util.toast('Error registering SDK event handler ' + error);
@@ -125,7 +126,7 @@ export class SdkService {
     }
   }
 
-  call(method: string, callback: any, config?: any, ) {
+  call(method: string, callback: any, config?: any) {
     var that = this;
 
     if (that.util.isCordova()) {
@@ -143,22 +144,30 @@ export class SdkService {
     }
   }
 
-  /*deviceDiscovery() {
+  deviceDiscovery(): Promise<any> {
     var that = this;
 
-    that.statusMessage = 'Discovering devices…';
-    if (that.util.isCordova()) {
-      that.statusMessage = 'Discovering devices… (Cordova available)';
-      cordova.plugins.Handpoint.listDevices({
-        method: cordova.plugins.Handpoint.ConnectionMethod.SIMULATOR
-      }, function (result) {
-        that.events.push(result);
-      }, function (error) {
-        that.util.toast('Error discovering devices ' + error);
+    let loading = this.loadingCtrl.create({
+      content: 'Searching for devices…'
+    });
+    loading.present();
+    return new Promise((resolve, reject) => {
+      // Subscribe event
+      that.events.subscribe('sdk:deviceDiscoveryFinished', (data) => {
+        loading.dismiss();
+        resolve(data);
       });
-    } else {
-      that.util.toast('Bluetooth is not available in Browser platform');
-    }
-  }*/
+
+      // call list devices sdk method
+      if (that.util.isCordova()) {
+        that.call('listDevices', function (result) { }, {
+          connectionMethod: cordova.plugins.Handpoint.ConnectionMethod.BLUETOOTH
+        });
+      } else {
+        loading.dismiss();
+        resolve([]);
+      }
+    });
+  }
 
 }

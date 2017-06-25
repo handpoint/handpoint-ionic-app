@@ -3,3 +3,32 @@ ion-content.page-bg {
   background-image: url('../assets/img/background.png');
   background-size: cover;
 }
+
+ion-grid.default-message {
+  h2 {
+    &.title {
+      color: white;
+      padding: 10px;
+      margin: 0px;
+      font-size: 1.5em;
+      text-align: center;
+      text-shadow: 1px 1px #333;
+      font-weight: 400;
+    }
+  }
+  h4 {
+    color: white;
+    margin: 0px;
+    text-shadow: 1px 1px #333;
+    font-weight: 200;
+    font-size: 1.3em;
+  }
+  ion-icon {
+    &.header {
+      font-size: 4em;
+      text-shadow: 1px 1px #333;
+      color: white;
+      margin-top: 20px;
+    }
+  }
+}
