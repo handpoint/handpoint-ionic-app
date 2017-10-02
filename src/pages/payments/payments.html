@@ -6,4 +6,27 @@
 
 <ion-content class="page-bg" padding>
 
+  <ion-grid class="default-message" *ngIf="!payments || (payments && payments.length === 0)" (click)="scan()">
+    <ion-row>
+      <ion-col text-center>
+        <ion-icon class="header" name="ios-paper-outline"></ion-icon>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col text-center>
+        <h2 class="title">There are no payments yet</h2>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-list no-lines>
+    <ion-item *ngFor="let payment of payments; let i = index">
+      {{ payment.description }}
+    </ion-item>
+  </ion-list>
+
+  <ion-infinite-scroll (ionInfinite)="loadMore($event)">
+    <ion-infinite-scroll-content></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
 </ion-content>
