@@ -16,10 +16,7 @@ declare var cordova;
 })
 export class ConfigurationPage {
 
-  private CONNECTION_METHOD_SIMULATOR: number = 2;
-
   public currencyCode: string;
-
   public currencies: any[];
 
   constructor(public navCtrl: NavController, public data: DataService, public util: UtilService, public currencyService: CurrencyService) {
@@ -27,16 +24,13 @@ export class ConfigurationPage {
   }
 
   ionViewWillEnter() {
-    this.data.getCurrencyFromLocalStorage().then(() => {
-      this.currencyCode = this.data.currency.code;
+    this.data.getCurrency().then((currency) => {
+      this.currencyCode = currency.code;
     });
   }
 
   searchDevices() {
-    var connectionMethod = this.util.isCordova() ? cordova.plugins.Handpoint.ConnectionMethod.BLUETOOTH : this.CONNECTION_METHOD_SIMULATOR;
-    this.navCtrl.push(SearchDevicesPage, {
-      connectionMethod: connectionMethod
-    });
+    this.navCtrl.push(SearchDevicesPage);
   }
 
   log() {

@@ -11,16 +11,6 @@ declare var cordova;
 @Injectable()
 export class SdkService {
 
-  private SHARED_SECRET: String = '0102030405060708091011121314151617181920212223242526272829303132';
-
-  public sharedSecret: string;
-  public currency: any;
-
-  public eventLog: any[] = [];
-
-  public macAddress: string = '68:AA:D2:02:89:B6';
-  public initialized: Promise<any>;
-
   constructor(
     private _ngZone: NgZone,
     public util: UtilService,
@@ -32,81 +22,13 @@ export class SdkService {
     public currencyService: CurrencyService) {
 
     // Set event handler function
-    this.configureEventHandler();
+    this.eventHandler();
   }
 
-  init(): Promise<any> {
-    var that = this;
-
-    if (!that.initialized) {
-      that.initialized = new Promise((resolve, reject) => {
-        that.platform.ready().then(() => {
-          that.storage.ready().then(() => {
-            if (that.util.isCordova()) {
-              that.data.getSharedSecretFromLocalStorage().then((sharedSecret) => {
-                if (sharedSecret) {
-                  // Init SDK with shared secret
-                  cordova.plugins.Handpoint.init({
-                    sharedSecret: sharedSecret,
-                  }, function (result) {
-                    // TODO get mac of default device from storage
-                    cordova.plugins.Handpoint.connect({
-                      device: {
-                        name: "SureSwipe3708",
-                        address: that.macAddress,
-                        port: "1",
-                        connectionMethod: cordova.plugins.Handpoint.ConnectionMethod.BLUETOOTH
-                      }
-                    }, function (result) {
-                      resolve();
-                    }, function (error) {
-                      that.util.toast('Error connecting device ' + error);
-                      resolve();
-                    });
-                  }, function (error) {
-                    that.util.toast('Error on SDK init ' + error);
-                    resolve();
-                  });
-                } else {
-                  resolve();
-                  that.util.toast('Shared secret not configured');
-                }
-              });
-            } else {
-              resolve();
-            }
-          });
-        });
-      });
-      return that.initialized;
-    } else {
-      return that.initialized;
-    }
-  }
-
-  setSharedSecret(sharedSecret: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      // Wait for sdk initializacion
-      this.initialized.then(() => {
-        // Save shared secret on storage and then set it up into SDK
-        this.data.setSharedSecret(sharedSecret).then(() => {
-          if (this.util.isCordova()) {
-            cordova.plugins.Handpoint.setSharedSecret({
-              sharedSecret: sharedSecret,
-            }, function (result) {
-              resolve(result);
-            }, function (err) {
-              reject(err);
-            });
-          } else {
-            resolve();
-          }
-        });
-      });
-    });
-  }
-
-  configureEventHandler() {
+  /**
+   * Publish every handpoint event to the event ionic framework with the 'handpoint:' prefix
+   */
+  eventHandler() {
     var that = this;
 
     if (that.util.isCordova()) {
@@ -114,60 +36,255 @@ export class SdkService {
       cordova.plugins.Handpoint.eventHandler(function (event) {
         // Run asynchronous call inside Angular execution context so data binding works
         that._ngZone.run(() => {
-          that.eventLog.unshift(event);
           // Publish event
-          that.events.publish("sdk:" + event.event, event.data);
+          if (event.event == 'connectionStatusChanged') {
+            that.events.publish("handpoint:" + event.event + ":" + event.data.status, event.data);
+          } else if (event.event == 'endOfTransaction') {
+            that.events.publish("handpoint:" + event.event + ":" + event.data.transactionResult.finStatus, event.data);
+          } else {
+            that.events.publish("handpoint:" + event.event, event.data);
+          }
         });
       }, function (error) {
         that.util.toast('Error registering SDK event handler ' + error);
       });
     } else {
-      that.util.toast('Bluetooth is not available in Browser platform');
+      that.util.toast('Handpoint SDK is not available in Browser platform');
     }
   }
 
-  call(method: string, callback: any, config?: any) {
-    var that = this;
-
-    if (that.util.isCordova()) {
-      if (config) {
-        cordova.plugins.Handpoint[method](config, callback, function (error) {
-          that.util.toast('SDK error method ' + method + ': ' + error);
-        });
-      } else {
-        cordova.plugins.Handpoint[method](callback, function (error) {
-          that.util.toast('SDK error method ' + method + ': ' + error);
-        });
-      }
-    } else {
-      that.util.toast('Bluetooth is not available in Browser platform');
-    }
+  setup(sharedSecret: string): Promise<any> {
+    return this.callAsyncSdkMethod("setup", {
+      successEvenList: [],
+      errorEvenList: []
+    }, {
+        sharedSecret: sharedSecret
+      });
   }
 
-  deviceDiscovery(): Promise<any> {
-    var that = this;
-
-    let loading = this.loadingCtrl.create({
-      content: 'Searching for devices…'
+  setSharedSecret(sharedSecret: string): Promise<any> {
+    return this.callAsyncSdkMethod("setSharedSecret", {}, {
+      sharedSecret: sharedSecret
     });
-    loading.present();
-    return new Promise((resolve, reject) => {
-      // Subscribe event
-      that.events.subscribe('sdk:deviceDiscoveryFinished', (data) => {
-        loading.dismiss();
-        resolve(data);
+  }
+
+  connect(device: any): Promise<any> {
+    return this.callAsyncSdkMethod("connect", {
+      successEvenList: ['handpoint:connectionStatusChanged:Connected'],
+      timeout: 15000
+    }, {
+        device: {
+          name: device.name,
+          address: device.address,
+          port: "1",
+          connectionMethod: cordova.plugins.Handpoint.ConnectionMethod.BLUETOOTH
+        }
       });
 
-      // call list devices sdk method
-      if (that.util.isCordova()) {
-        that.call('listDevices', function (result) { }, {
+
+  }
+
+  disconnect(device: any): Promise<any> {
+    return this.callAsyncSdkMethod("connect", {
+      successEvenList: ['handpoint:connectionStatusChanged:Disconnected'],
+      timeout: 15000
+    }, {
+        device: {
+          name: device.name,
+          address: device.address,
+          port: "1",
           connectionMethod: cordova.plugins.Handpoint.ConnectionMethod.BLUETOOTH
-        });
+        }
+      });
+  }
+
+  sale(amount: number, currency: number, map?: any): Promise<any> {
+    return this.callAsyncSdkMethod("sale", {
+      successEvenList: ['handpoint:endOfTransaction:AUTHORISED'],
+      errorEvenList: ['handpoint:endOfTransaction:DECLINED', 'handpoint:endOfTransaction:FAILED', 'handpoint:endOfTransaction:CANCELLED']
+    }, {
+        amount: amount,
+        currency: currency,
+        map: map
+      });
+  }
+
+  refund(amount: number, currency: number, map?: any): Promise<any> {
+    return this.callAsyncSdkMethod("refund", {
+      successEvenList: ['handpoint:endOfTransaction:AUTHORISED'],
+      errorEvenList: ['handpoint:endOfTransaction:DECLINED', 'handpoint:endOfTransaction:FAILED', 'handpoint:endOfTransaction:CANCELLED']
+    }, {
+        amount: amount,
+        currency: currency,
+        map: map
+      });
+  }
+
+  saleReversal(amount: number, currency: number, originalTransactionID: string, map?: any): Promise<any> {
+    return this.callAsyncSdkMethod("saleReversal", {
+      successEvenList: ['handpoint:endOfTransaction:AUTHORISED'],
+      errorEvenList: ['handpoint:endOfTransaction:DECLINED', 'handpoint:endOfTransaction:FAILED', 'handpoint:endOfTransaction:CANCELLED']
+    }, {
+        amount: amount,
+        currency: currency,
+        originalTransactionID: originalTransactionID,
+        map: map
+      });
+  }
+
+  refundReversal(amount: number, currency: number, originalTransactionID: string, map?: any): Promise<any> {
+    return this.callAsyncSdkMethod("refundReversal", {
+      successEvenList: ['handpoint:endOfTransaction:AUTHORISED'],
+      errorEvenList: ['handpoint:endOfTransaction:DECLINED', 'handpoint:endOfTransaction:FAILED', 'handpoint:endOfTransaction:CANCELLED']
+    }, {
+        amount: amount,
+        currency: currency,
+        originalTransactionID: originalTransactionID,
+        map: map
+      });
+  }
+
+  signatureResult(accepted: boolean): Promise<any> {
+    return this.callAsyncSdkMethod("signatureResult", {}, {
+      accepted: accepted
+    });
+  }
+
+  listDevices(): Promise<any> {
+    return this.callAsyncSdkMethod("listDevices", {
+      successEvenList: ['handpoint:deviceDiscoveryFinished'],
+      timeout: 45000
+    }, {
+        connectionMethod: cordova.plugins.Handpoint.ConnectionMethod.BLUETOOTH
+      });
+  }
+
+  setLogLevel(level: number): Promise<any> {
+    return this.callAsyncSdkMethod("setLogLevel", {}, {
+      level: level
+    });
+  }
+
+  getPendingTransaction(): Promise<any> {
+    return this.callAsyncSdkMethod("getPendingTransaction", {
+      successEvenList: ['handpoint:pendingTransactionResult'],
+      timeout: 45000
+    }, {});
+  }
+
+  update(): Promise<any> {
+    return this.callAsyncSdkMethod("update", {
+      successEvenList: ['handpoint:connectionStatusChanged:Disconnected', 'handpoint:endOfTransaction']
+    }, {});
+  }
+
+  getDeviceLogs(): Promise<any> {
+    return this.callAsyncSdkMethod("getDeviceLogs", {
+      successEvenList: ['handpoint:deviceLogsReady'],
+      timeout: 45000
+    }, {});
+  }
+
+  /**
+   * This method transforms Callbacks into Promises
+   * @param method Name of the SDK method to call
+   * @param config
+   *   config.timeout: timeout in seconds before rejecting the promise
+   *   config.successEvenList: list of success event names 
+   *   config.errorsEvenList: list of error event names 
+   * @param params Object encapsulating the parameters of this method
+   */
+  private callAsyncSdkMethod(method: string, config: any, params?: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      if (this.util.isCordova()) {
+        if (params) {
+          cordova.plugins.Handpoint[method](params, this.successCallback(config, resolve, reject).bind(this), (error) => {
+            reject(error);
+          });
+        } else {
+          cordova.plugins.Handpoint[method](this.successCallback(config, resolve, reject).bind(this), (error) => {
+            reject(error);
+          });
+        }
       } else {
-        loading.dismiss();
-        resolve([]);
+        resolve();
       }
     });
+  }
+
+  /**
+   * Subscribes to success and error events and resolves the promise whether it receives an event 
+   * or there is a timeout. Cleans up event subscriptions when it's done
+   * @param config 
+   *   config.timeout: timeout in seconds before rejecting the promise
+   *   config.successEvenList: list of success event names 
+   *   config.errorsEvenList: list of error event names 
+   * @param resolve Resolve callback
+   * @param reject Reject callback
+   */
+  private successCallback(config: any, resolve: any, reject: any): Function {
+    return function (result) {
+      var i, j;
+      var resolved = false;
+      // Need to listen for any event?
+      if (config.successEvenList && config.successEvenList.length > 0) {
+        // Success listener function
+        var successListener = (res) => {
+          resolved = true;
+          // Unsusbcribe event listeners
+          this.unsubscribe(successListener, errorListener, config.successEvenList, config.errorEvenList);
+          resolve && resolve(res);
+        }
+        // Error listener function
+        var errorListener = (err) => {
+          resolved = true;
+          // Unsusbcribe event listeners
+          this.unsubscribe(successListener, errorListener, config.successEvenList, config.errorEvenList);
+          reject && reject(err);
+        }
+        // Subscribe to all success events for this call
+        for (i = 0; config.successEvenList && i < config.successEvenList.length; i++) {
+          this.events.subscribe(config.successEvenList[i], successListener);
+        }
+        // Subscribe to all error events for this call
+        for (j = 0; config.errorEvenList && j < config.errorEvenList.length; j++) {
+          this.events.subscribe(config.errorEvenList[j], errorListener);
+        }
+        // Set timeout functions if exists
+        if (config.timeout) {
+          setTimeout(() => {
+            if (!resolved) {
+              resolved = true;
+              // Unsusbcribe event listeners
+              this.unsubscribe(successListener, errorListener, config.successEvenList, config.errorEvenList);
+              // Reject Promise because of timeout
+              reject();
+            }
+          }, config.timeout);
+        }
+      } else {
+        resolve(result);
+      }
+    }
+  }
+
+  /**
+   * Unsubscribes from a list of success and error events
+   * @param successListener 
+   * @param errorListener 
+   * @param successEvenList 
+   * @param errorEvenList 
+   */
+  private unsubscribe(successListener: Function, errorListener: Function, successEvenList: any[], errorEvenList: any[]): void {
+    var i, j;
+    // Unsubscribe to all success events for this call
+    for (i = 0; successEvenList && i < successEvenList.length; i++) {
+      this.events.unsubscribe(successEvenList[i], successListener);
+    }
+    // Unsubscribe to all error events for this call
+    for (j = 0; errorEvenList && j < errorEvenList.length; j++) {
+      this.events.unsubscribe(errorEvenList[j], errorListener);
+    }
   }
 
 }
