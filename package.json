@@ -27,6 +27,7 @@
         "@ionic-native/vibration": "^4.5.3",
         "@ionic/storage": "2.0.1",
         "angular2-moment": "^1.8.0",
+        "cordova-ios": "4.5.4",
         "cordova-plugin-console": "1.0.5",
         "cordova-plugin-customurlscheme": "git+https://github.com/EddyVerbruggen/Custom-URL-scheme.git",
         "cordova-plugin-device": "1.1.4",
