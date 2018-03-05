@@ -9,6 +9,7 @@ import { Events } from 'ionic-angular';
 @Injectable()
 export class DataService {
 
+  private TRANSACTIONS_CACHE_SIZE: number = 12;
   public sharedSecret: string;
   public currency: any;
 
@@ -17,93 +18,83 @@ export class DataService {
     public storage: Storage,
     public platform: Platform,
     public currencyService: CurrencyService) {
-    this.platform.ready().then(() => {
-      this.init();
-    });
-  }
-
-  init() {
-    this.storage.ready().then(() => {
-      // Get shared secret from storage
-      var sharedSecretPromise = this.getSharedSecretFromLocalStorage();
-      // Get currency from storage
-      var currencyPromise = this.getCurrencyFromLocalStorage();
-      // Wait for both
-      Promise.all([sharedSecretPromise, currencyPromise]).then(() => {
-        this.events.publish('data.service:ready');
-      });
-    });
-  }
-
-  setCurrency(code?: string): Promise<any> {
-    let currencyObj;
-
-    if (code) {
-      currencyObj = this.currencyService.get(code);
-      currencyObj.code = code;
-    } else {
-      currencyObj = this.currencyService.getDefault();
-      currencyObj.code = this.currencyService.getDefaultCode();
-    }
-
-    return this.storage.ready().then(() => {
-      if (currencyObj) {
-        // Save to local storage
-        this.storage.set('currency', currencyObj);
-      } else {
-        console.error('No currency found ', code);
-      }
-    });
 
   }
 
-  setSharedSecret(secret: string): Promise<any> {
-    this.sharedSecret = secret;
-    return new Promise((resolve, reject) => {
-      this.storage.ready().then(() => {
-        // Save in local storage
-        this.storage.set('sharedSecret', secret).then(() => {
-          resolve();
-        });
-      });
-    });
+  setCurrency(code: string) {
+    // Save to local storage
+    this.storage.set('currency', JSON.stringify(this.currencyService.get(code)));
   }
 
-  getSharedSecretFromLocalStorage(): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.storage.ready().then(() => {
-        this.storage.get('sharedSecret').then((sharedSecret) => {
-          if (sharedSecret) {
-            this.sharedSecret = sharedSecret;
-            resolve(this.sharedSecret);
-          } else {
-            resolve();
-          }
-        });
-      });
-    });
-  }
-
-  getCurrencyFromLocalStorage() {
+  getCurrency(): Promise<any> {
     return new Promise((resolve, reject) => {
       this.storage.get('currency').then((currency) => {
         if (currency) {
-          // Parse json object
-          if (typeof this.currency === 'string') {
-            try {
-              this.currency = JSON.parse(currency);
-            } catch (e) {
-              console.error('Error parsing currency JSON: ', currency);
-            }
-          } else {
-            this.currency = currency;
-          }
+          resolve(JSON.parse(currency));
         } else {
-          // If no currency selected, set default
-          this.setCurrency();
+          resolve(this.currencyService.get(this.currencyService.getDefaultCode()));
         }
-        resolve();
       });
+    });
+  }
+
+  setPreferredDevice(device: any) {
+    // Save to local storage
+    this.storage.set('device', JSON.stringify(device));
+  }
+
+  getPreferredDevice(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.storage.get('device').then((device) => {
+        if (device) {
+          resolve(JSON.parse(device));
+        } else {
+          resolve(null);
+        }
+      });
+    });
+  }
+
+  setListDevices(devices: any) {
+    // Save to local storage
+    this.storage.set('devices', JSON.stringify(devices));
+  }
+
+  getListDevices(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.storage.get('devices').then((devices) => {
+        if (devices) {
+          resolve(JSON.parse(devices));
+        } else {
+          resolve([]);
+        }
+      });
+    });
+  }
+
+  getTransactions(): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      this.storage.get('transactions').then((transactions) => {
+        if (transactions) {
+          resolve(JSON.parse(transactions));
+        } else {
+          resolve([]);
+        }
+      });
+    });
+  }
+
+  pushTransaction(transaction: any) {
+    this.storage.get('transactions').then((transactions) => {
+      let transactionsArray = [];
+      if (transactions) {
+        transactionsArray = JSON.parse(transactions);
+      }
+      transactionsArray.unshift(transaction);
+      if (transactionsArray.length > this.TRANSACTIONS_CACHE_SIZE) {
+        transactionsArray.pop();
+      }
+      this.storage.set('transactions', JSON.stringify(transactionsArray));
     });
   }
 

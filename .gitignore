@@ -30,6 +30,10 @@ plugins/android.json
 plugins/ios.json
 $RECYCLE.BIN/
 
+resources/*.md5
+resources/ios
+resources/android
+
 .DS_Store
 Thumbs.db
 UserInterfaceState.xcuserstate

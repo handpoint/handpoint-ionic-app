@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, LoadingController } from 'ionic-angular';
 import { Platform } from 'ionic-angular';
 import { AlertController } from 'ionic-angular';
-
+import { Vibration } from '@ionic-native/vibration';
 import { UtilService } from '../../services/util.service';
 import { DataService } from '../../services/data.service';
 import { CurrencyService } from '../../services/currency.service';
@@ -17,11 +17,9 @@ export class PayPage {
   public mode: string = 'pay';
   private amount: string = '0';
   private amountFormatted: string = '0';
-  public saleParams: any = {
-    amount: 0,
-    currency: 826
-  };
+
   public currency: string;
+  private currencyCode: number = 826;
   public currencyFractionSize: number;
 
   constructor(
@@ -31,27 +29,19 @@ export class PayPage {
     public data: DataService,
     public currencyService: CurrencyService,
     public sdk: SdkService,
+    public vibration: Vibration,
     public loadingCtrl: LoadingController,
     public platform: Platform) {
-
-    let loading = this.loadingCtrl.create({
-      content: 'Please wait...'
-    });
-    loading.present();
-
     this.currency = this.currencyService.getDefaultCode();
     this.currencyFractionSize = this.currencyService.getDefault().fractionSize;
-    this.saleParams.currency = this.currencyService.getDefault().numCode;
-    this.sdk.init().then(() => {
-      loading.dismiss();
-    });
+    this.currencyCode = this.currencyService.getDefault().numCode;
   }
 
   ionViewWillEnter() {
-    this.data.getCurrencyFromLocalStorage().then(() => {
-      this.currency = this.data.currency.code;
-      this.currencyFractionSize = this.data.currency.fractionSize;
-      this.saleParams.currency = this.data.currency.numCode;
+    this.data.getCurrency().then((currency) => {
+      this.currency = currency.code;
+      this.currencyFractionSize = currency.fractionSize;
+      this.currencyCode = currency.numCode;
       this.formatAmount();
     });
   }
@@ -79,21 +69,41 @@ export class PayPage {
   }
 
   sale() {
-    var that = this;
-
-    that.saleParams.amount = parseInt(that.amount);
-    that.sdk.call('sale', function (result) {
-      // TODO waiting for card
-    }, that.saleParams);
+    this.sdk.sale(parseInt(this.amount), this.currencyCode).then((result) => {
+      this.util.toast("Sale finished");
+      this.finish(result);
+    }, (error) => {
+      this.util.toast("Sale not completed");
+      this.finish();
+    });
   }
 
   refund() {
-    var that = this;
+    this.sdk.refund(parseInt(this.amount), this.currencyCode).then((result) => {
+      this.util.toast("Refund finished");
+      this.finish(result);
+    }, (error) => {
+      this.util.toast("Refund not completed");
+      this.finish();
+    });
+  }
 
-    that.saleParams.amount = parseInt(that.amount);
-    this.sdk.call('refund', function (result) {
-      // TODO waiting for card
-    }, this.saleParams);
+  finish(result?: any) {
+    this.vibration.vibrate(1000);
+    if (result) {
+      this.data.pushTransaction({
+        type: this.mode,
+        amount: parseInt(this.amount),
+        amountFormatted: this.amountFormatted,
+        currency: this.currency,
+        currencyCode: this.currencyCode,
+        currencyFractionSize: this.currencyFractionSize,
+        date: new Date(),
+        eFTTransactionID: result.transactionResult.eFTTransactionID
+      });
+    }
+    this.amount = '0';
+    this.amountFormatted = this.util.formatCurrency(this.amount, this.currencyFractionSize);
   }
 
 }

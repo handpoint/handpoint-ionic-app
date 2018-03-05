@@ -6,4 +6,17 @@
 
 <ion-content class="page-bg" padding>
 
+  <ion-list>
+    <ion-card ion-item *ngFor="let txn of transactions" (click)="txnActionSheet(txn)">
+      <ion-card-header>
+        <strong>{{ getType(txn.type) }}</strong>
+        <span class="amount">{{ txn.amountFormatted | currency:txn.currency:true:'1.' + txn.currencyFractionSize }}
+        </span>
+      </ion-card-header>
+      <ion-card-content>
+        {{ txn.date | amTimeAgo }}
+      </ion-card-content>
+    </ion-card>
+  </ion-list>
+
 </ion-content>

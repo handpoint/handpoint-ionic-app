@@ -1,13 +1,9 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>Event log</ion-title>
+    <ion-title>Card Reader Logs</ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content class="page-bg" padding>
-  <ul>
-    <li *ngFor="let event of sdk.eventLog">
-      <pre>{{ event | json }}</pre>
-    </li>
-  </ul>
+  <pre>{{ logs }}</pre>
 </ion-content>

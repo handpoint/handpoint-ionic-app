@@ -33,7 +33,7 @@ export class UtilService {
     let milliseconds = ms ? ms : 5000;
 
     if (this.isCordova()) {
-      this._toast.show(msg, milliseconds.toString(), 'center').subscribe(
+      this._toast.show(msg, milliseconds.toString(), 'top').subscribe(
         toast => {
           console.log(toast);
         }

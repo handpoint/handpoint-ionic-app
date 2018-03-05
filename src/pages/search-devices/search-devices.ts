@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 
 import { NavController, LoadingController } from 'ionic-angular';
-
+import { TabsPage } from '../../pages/tabs/tabs';
 import { UtilService } from '../../services/util.service';
 import { SdkService } from '../../services/sdk.service';
+import { DataService } from '../../services/data.service';
 
 declare var cordova;
 
@@ -20,41 +21,59 @@ export class SearchDevicesPage {
     public navCtrl: NavController,
     public sdk: SdkService,
     public loadingCtrl: LoadingController,
-    public util: UtilService) {
+    public util: UtilService,
+    public data: DataService) {
 
   }
 
   ionViewWillEnter() {
-    this.scan();
-  }
-
-  scan() {
-    this.finishScan = false;
-    this.sdk.deviceDiscovery().then((data) => {
-      this.devices = data.devices;
+    // Get list of devices from local storage (cache)
+    this.data.getListDevices().then((devices) => {
+      this.finishScan = true;
+      if (devices && devices.length > 0) {
+        this.devices = devices;
+      } else {
+        this.scan();
+      }
+    }, (error) => {
       this.finishScan = true;
     });
   }
 
-  connect(device: any) {
-    var that = this;
+  scan() {
+    let loading = this.loadingCtrl.create({
+      content: 'Scanning devices'
+    });
+    loading.present();
 
-    if (that.util.isCordova()) {
-      cordova.plugins.Handpoint.connect({
-        device: {
-          name: device.name,
-          address: device.address,
-          port: "1",
-          connectionMethod: cordova.plugins.Handpoint.ConnectionMethod.BLUETOOTH
-        }
-      }, function (result) {
-        that.util.toast('Successfully connected to ' + device.name);
-      }, function (error) {
-        that.util.toast('Error connecting to ' + device.name + ' ' + error);
-      });
-    } else {
-      // TODO 'Plugin is not available in Browser platform';
-    }
+    this.finishScan = false;
+    this.sdk.listDevices().then((data) => {
+      this.devices = data.devices;
+      this.data.setListDevices(this.devices);
+      this.finishScan = true;
+      loading.dismiss();
+    }, (error) => {
+      this.finishScan = true;
+      loading.dismiss();
+    });
+  }
+
+  connect(device: any) {
+    let loading = this.loadingCtrl.create({
+      content: 'Connecting to device ' + device.name
+    });
+    loading.present();
+
+    this.sdk.connect(device).then(() => {
+      loading.dismiss();
+      this.navCtrl.setRoot(TabsPage);
+      // Save as preferred device
+      this.data.setPreferredDevice(device);
+    }, (err) => {
+      loading.dismiss();
+      this.util.toast('Error connecting to ' + device.name + '. Try again');
+    });
+
   }
 
 }
