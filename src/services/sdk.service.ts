@@ -21,8 +21,15 @@ export class SdkService {
     public loadingCtrl: LoadingController,
     public currencyService: CurrencyService) {
 
-    // Set event handler function
-    this.eventHandler();
+    this.platform.ready().then(() => {
+      try {
+        // Set event handler function
+        this.eventHandler();
+      } catch (e) {
+        this.util.toast("Error initializing Handpoint SDK");
+      }
+    });
+
   }
 
   /**
