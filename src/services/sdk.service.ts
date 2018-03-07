@@ -87,8 +87,6 @@ export class SdkService {
           connectionMethod: cordova.plugins.Handpoint.ConnectionMethod.BLUETOOTH
         }
       });
-
-
   }
 
   disconnect(device: any): Promise<any> {
