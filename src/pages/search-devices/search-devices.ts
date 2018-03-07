@@ -27,17 +27,21 @@ export class SearchDevicesPage {
   }
 
   ionViewWillEnter() {
-    // Get list of devices from local storage (cache)
-    this.data.getListDevices().then((devices) => {
-      this.finishScan = true;
-      if (devices && devices.length > 0) {
-        this.devices = devices;
-      } else {
-        this.scan();
-      }
-    }, (error) => {
-      this.finishScan = true;
-    });
+    if (this.util.isCordova()) {
+      // Get list of devices from local storage (cache)
+      this.data.getListDevices().then((devices) => {
+        this.finishScan = true;
+        if (devices && devices.length > 0) {
+          this.devices = devices;
+        } else {
+          this.scan();
+        }
+      }, (error) => {
+        this.finishScan = true;
+      });
+    } else {
+      this.util.toast('Handpoint SDK is not available in Browser platform');
+    }
   }
 
   scan() {

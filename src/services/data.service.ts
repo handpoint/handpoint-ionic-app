@@ -30,7 +30,11 @@ export class DataService {
     return new Promise((resolve, reject) => {
       this.storage.get('currency').then((currency) => {
         if (currency) {
-          resolve(JSON.parse(currency));
+          try {
+            resolve(JSON.parse(currency));
+          } catch (e) {
+            resolve(this.currencyService.get(this.currencyService.getDefaultCode()));
+          }
         } else {
           resolve(this.currencyService.get(this.currencyService.getDefaultCode()));
         }
@@ -47,7 +51,11 @@ export class DataService {
     return new Promise((resolve, reject) => {
       this.storage.get('device').then((device) => {
         if (device) {
-          resolve(JSON.parse(device));
+          try {
+            resolve(JSON.parse(device));
+          } catch (e) {
+            resolve(null);
+          }
         } else {
           resolve(null);
         }
@@ -64,7 +72,11 @@ export class DataService {
     return new Promise((resolve, reject) => {
       this.storage.get('devices').then((devices) => {
         if (devices) {
-          resolve(JSON.parse(devices));
+          try {
+            resolve(JSON.parse(devices));
+          } catch (e) {
+            resolve([]);
+          }
         } else {
           resolve([]);
         }
