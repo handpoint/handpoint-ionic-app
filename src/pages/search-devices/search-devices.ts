@@ -27,39 +27,40 @@ export class SearchDevicesPage {
   }
 
   ionViewWillEnter() {
-    if (this.util.isCordova()) {
-      // Get list of devices from local storage (cache)
-      this.data.getListDevices().then((devices) => {
-        this.finishScan = true;
-        if (devices && devices.length > 0) {
-          this.devices = devices;
-        } else {
-          this.scan();
-        }
-      }, (error) => {
-        this.finishScan = true;
-      });
-    } else {
-      this.util.toast('Handpoint SDK is not available in Browser platform');
-    }
+    // Get list of devices from local storage (cache)
+    this.data.getListDevices().then((devices) => {
+      this.finishScan = true;
+      if (devices && devices.length > 0) {
+        this.devices = devices;
+      } else {
+        this.scan();
+      }
+    }, (error) => {
+      this.finishScan = true;
+    });
+
   }
 
   scan() {
-    let loading = this.loadingCtrl.create({
-      content: 'Scanning devices'
-    });
-    loading.present();
+    if (this.util.isCordova()) {
+      let loading = this.loadingCtrl.create({
+        content: 'Searching for devices'
+      });
+      loading.present();
 
-    this.finishScan = false;
-    this.sdk.listDevices().then((data) => {
-      this.devices = data.devices;
-      this.data.setListDevices(this.devices);
-      this.finishScan = true;
-      loading.dismiss();
-    }, (error) => {
-      this.finishScan = true;
-      loading.dismiss();
-    });
+      this.finishScan = false;
+      this.sdk.listDevices().then((data) => {
+        this.devices = data.devices;
+        this.data.setListDevices(this.devices);
+        this.finishScan = true;
+        loading.dismiss();
+      }, (error) => {
+        this.finishScan = true;
+        loading.dismiss();
+      });
+    } else {
+      this.util.toast('Handpoint SDK is not available in Browser platform.');
+    }
   }
 
   connect(device: any) {
