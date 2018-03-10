@@ -1,5 +1,9 @@
 # Handpoint Payments Starter App
 
+<img height="417" widht="890" src="https://user-images.githubusercontent.com/3254688/37241612-ded07e34-2453-11e8-9d34-ca61af5cd0aa.png"/>
+<br>
+<img height="417" widht="890" src="https://user-images.githubusercontent.com/3254688/37241613-e009d084-2453-11e8-971b-8fa17eace6a0.png"/>
+
 ## Overview
 This is a demo app for the [Handpoint Cordova Plugin](https://github.com/handpoint/cordova-plugin-handpoint/). The app is fully functional. If you want to test your card reader just update the next line with your shared secret in **app.component.ts** before building the app:
 
@@ -9,9 +13,6 @@ This is a demo app for the [Handpoint Cordova Plugin](https://github.com/handpoi
     …
   }, …); 
 ```
-<img height="417" widht="890" src="https://user-images.githubusercontent.com/3254688/37241612-ded07e34-2453-11e8-9d34-ca61af5cd0aa.png"/>
-<br>
-<img height="417" widht="890" src="https://user-images.githubusercontent.com/3254688/37241613-e009d084-2453-11e8-971b-8fa17eace6a0.png"/>
 
 ## Prerequisites
 * [Install node (v6.10.0)](https://nodejs.org/es/download/)
