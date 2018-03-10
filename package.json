@@ -27,11 +27,13 @@
         "@ionic-native/vibration": "^4.5.3",
         "@ionic/storage": "2.0.1",
         "angular2-moment": "^1.8.0",
+        "cordova-android": "6.4.0",
         "cordova-ios": "4.5.4",
-        "cordova-plugin-console": "1.0.5",
         "cordova-plugin-customurlscheme": "git+https://github.com/EddyVerbruggen/Custom-URL-scheme.git",
         "cordova-plugin-device": "1.1.4",
         "cordova-plugin-handpoint": "^1.2.0",
+        "cordova-plugin-ionic-keyboard": "^2.0.5",
+        "cordova-plugin-ionic-webview": "^1.1.16",
         "cordova-plugin-splashscreen": "~4.0.1",
         "cordova-plugin-statusbar": "2.2.2",
         "cordova-plugin-vibration": "^3.0.1",
@@ -42,8 +44,7 @@
         "ionicons": "3.0.0",
         "rxjs": "5.1.1",
         "sw-toolbox": "3.6.0",
-        "zone.js": "0.8.11",
-        "cordova-android": "6.4.0"
+        "zone.js": "0.8.11"
     },
     "devDependencies": {
         "@ionic/app-scripts": "1.3.7",
@@ -55,7 +56,6 @@
     "cordova": {
         "plugins": {
             "cordova-plugin-x-toast": {},
-            "cordova-plugin-console": {},
             "cordova-plugin-device": {},
             "cordova-plugin-splashscreen": {},
             "cordova-plugin-statusbar": {},
@@ -68,7 +68,9 @@
                 "ANDROID_PATHPREFIX": "/"
             },
             "cordova-plugin-vibration": {},
-            "cordova-plugin-handpoint": {}
+            "cordova-plugin-handpoint": {},
+            "cordova-plugin-ionic-webview": {},
+            "cordova-plugin-ionic-keyboard": {}
         },
         "platforms": [
             "android",

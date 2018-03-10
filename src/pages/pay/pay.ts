@@ -69,22 +69,36 @@ export class PayPage {
   }
 
   sale() {
+    let loading = this.loadingCtrl.create({
+      content: 'Processing sale...'
+    });
+    loading.present();
+
     this.sdk.sale(parseInt(this.amount), this.currencyCode).then((result) => {
       this.util.toast("Sale finished");
       this.finish(result);
+      loading.dismiss();
     }, (error) => {
       this.util.toast("Sale not completed");
       this.finish();
+      loading.dismiss();
     });
   }
 
   refund() {
+    let loading = this.loadingCtrl.create({
+      content: 'Processing refund...'
+    });
+    loading.present();
+
     this.sdk.refund(parseInt(this.amount), this.currencyCode).then((result) => {
       this.util.toast("Refund finished");
       this.finish(result);
+      loading.dismiss();
     }, (error) => {
       this.util.toast("Refund not completed");
       this.finish();
+      loading.dismiss();
     });
   }
 

@@ -11,6 +11,8 @@ declare var cordova;
 @Injectable()
 export class SdkService {
 
+  private sharedSecret: string;
+
   constructor(
     private _ngZone: NgZone,
     public util: UtilService,
@@ -60,16 +62,15 @@ export class SdkService {
     }
   }
 
-  setup(sharedSecret: string): Promise<any> {
+  setup(): Promise<any> {
     return this.callAsyncSdkMethod("setup", {
       successEvenList: [],
       errorEvenList: []
-    }, {
-        sharedSecret: sharedSecret
-      });
+    }, {});
   }
 
   setSharedSecret(sharedSecret: string): Promise<any> {
+    this.sharedSecret = sharedSecret;
     return this.callAsyncSdkMethod("setSharedSecret", {}, {
       sharedSecret: sharedSecret
     });
