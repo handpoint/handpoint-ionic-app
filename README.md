@@ -4,15 +4,14 @@
 This is a demo app for the [Handpoint Cordova Plugin](https://github.com/handpoint/cordova-plugin-handpoint/). The app is fully functional. If you want to test your card reader just update the next line with your shared secret in **app.component.ts** before building the app:
 
 ```javascript
-  // Init Handpoint SDK with shared secret
-  this.sdk.setup('0102030405060708091011121314151617181920212223242526272829303132').then(() => {
+  // set shared secret
+  this.sdk.setSharedSecret('0102030405060708091011121314151617181920212223242526272829303132').then(() => {
     …
   }, …); 
 ```
-
-<img height="480" src="https://user-images.githubusercontent.com/3254688/27279547-3f1d9536-54e5-11e7-8041-5921ddc5003c.jpg"/>
-
-<img height="480" src="https://user-images.githubusercontent.com/3254688/27696370-b3f55344-5cf1-11e7-953c-4570bb00bcb8.png"/>
+<img height="417" widht="890" src="https://user-images.githubusercontent.com/3254688/37241612-ded07e34-2453-11e8-9d34-ca61af5cd0aa.png"/>
+<br>
+<img height="417" widht="890" src="https://user-images.githubusercontent.com/3254688/37241613-e009d084-2453-11e8-971b-8fa17eace6a0.png"/>
 
 ## Prerequisites
 * [Install node (v6.10.0)](https://nodejs.org/es/download/)
