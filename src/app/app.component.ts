@@ -38,29 +38,35 @@ export class HandpointApp {
   }
 
   init() {
-    this.statusBar.styleDefault();
+    // Configure statusbar
+    this.statusBar.overlaysWebView(false);
+    this.statusBar.backgroundColorByHexString('#1b0e33');
+    this.statusBar.styleLightContent();
     this.splashScreen.hide();
 
     let loading = this.loadingCtrl.create({
       content: 'Please wait...'
     });
     loading.present();
-    // Init Handpoint SDK with shared secret
-    this.sdk.setup('0102030405060708091011121314151617181920212223242526272829303132').then(() => {
-      // Connect to preferred device
-      this.data.getPreferredDevice().then((device) => {
-        if (device) {
-          this.sdk.connect(device).then(() => {
+    // Init Handpoint SDK 
+    this.sdk.setup().then(() => {
+      // set shared secret
+      this.sdk.setSharedSecret('0102030405060708091011121314151617181920212223242526272829303132').then(() => {
+        // Connect to preferred device
+        this.data.getPreferredDevice().then((device) => {
+          if (device) {
+            this.sdk.connect(device).then(() => {
+              loading.dismiss();
+            }, (err) => {
+              loading.dismiss();
+            });
+          } else {
             loading.dismiss();
-          }, (err) => {
-            loading.dismiss();
-          });
-        } else {
+            this.rootPage = SearchDevicesPage;
+          }
+        }, (error) => {
           loading.dismiss();
-          this.rootPage = SearchDevicesPage;
-        }
-      }, (error) => {
-        loading.dismiss();
+        });
       });
     });
 

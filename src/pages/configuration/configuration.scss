@@ -3,13 +3,16 @@ page-configuration {
     &.item,
     &.item-md {
       color: white;
+      background-color: transparent;
     }
   }
   .item-select {
     ion-label {
+      background-color: transparent;
       &.label,
       &.label-md {
         color: white;
+        background-color: transparent;
       }
     }
   }

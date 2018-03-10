@@ -11,6 +11,8 @@ declare var cordova;
 @Injectable()
 export class SdkService {
 
+  private sharedSecret: string;
+
   constructor(
     private _ngZone: NgZone,
     public util: UtilService,
@@ -21,8 +23,15 @@ export class SdkService {
     public loadingCtrl: LoadingController,
     public currencyService: CurrencyService) {
 
-    // Set event handler function
-    this.eventHandler();
+    this.platform.ready().then(() => {
+      try {
+        // Set event handler function
+        this.eventHandler();
+      } catch (e) {
+        this.util.toast("Error initializing Handpoint SDK");
+      }
+    });
+
   }
 
   /**
@@ -53,16 +62,15 @@ export class SdkService {
     }
   }
 
-  setup(sharedSecret: string): Promise<any> {
+  setup(): Promise<any> {
     return this.callAsyncSdkMethod("setup", {
       successEvenList: [],
       errorEvenList: []
-    }, {
-        sharedSecret: sharedSecret
-      });
+    }, {});
   }
 
   setSharedSecret(sharedSecret: string): Promise<any> {
+    this.sharedSecret = sharedSecret;
     return this.callAsyncSdkMethod("setSharedSecret", {}, {
       sharedSecret: sharedSecret
     });
@@ -80,8 +88,6 @@ export class SdkService {
           connectionMethod: cordova.plugins.Handpoint.ConnectionMethod.BLUETOOTH
         }
       });
-
-
   }
 
   disconnect(device: any): Promise<any> {
