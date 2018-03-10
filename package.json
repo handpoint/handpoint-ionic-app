@@ -31,7 +31,7 @@
         "cordova-ios": "4.5.4",
         "cordova-plugin-customurlscheme": "git+https://github.com/EddyVerbruggen/Custom-URL-scheme.git",
         "cordova-plugin-device": "1.1.4",
-        "cordova-plugin-handpoint": "^1.2.0",
+        "cordova-plugin-handpoint": "^1.2.2",
         "cordova-plugin-ionic-keyboard": "^2.0.5",
         "cordova-plugin-ionic-webview": "^1.1.16",
         "cordova-plugin-splashscreen": "~4.0.1",
