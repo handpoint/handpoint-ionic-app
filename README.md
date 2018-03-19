@@ -27,10 +27,10 @@ This is a demo app for the [Handpoint Cordova Plugin](https://github.com/handpoi
 
 ## Build
 ### Android
-* Add platform `ionic add platform android`
+* Add platform `ionic cordova platform add android`
 * Run `ionic cordova build android`
 
 ### IOS
-* Add platform `ionic add platform ios`
+* Add platform `ionic cordova platform add ios`
 * Run `ionic cordova build ios`
 
