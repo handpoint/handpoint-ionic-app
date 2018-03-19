@@ -19,6 +19,7 @@ This is a demo app for the [Handpoint Cordova Plugin](https://github.com/handpoi
 * Update `npm` to Latest: `npm install -g npm`
 * Install `grunt`: `npm install -g grunt`
 * Install the ionic CLI (`npm install -g ionic`)
+* Install Android Developer Studio with Android SDK and XCode
 
 ## Getting Started
 * Clone this repository: `git clone https://github.com/handpoint/handpoint-ionic-app`.
