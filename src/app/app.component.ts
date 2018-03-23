@@ -68,7 +68,7 @@ export class HandpointApp {
           }, (error) => {
             loading.dismiss();
           });
-        }, 1000);
+        }, 2000);
       });
     });
 
