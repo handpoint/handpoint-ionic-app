@@ -52,21 +52,23 @@ export class HandpointApp {
     this.sdk.setup().then(() => {
       // set shared secret
       this.sdk.setSharedSecret('0102030405060708091011121314151617181920212223242526272829303132').then(() => {
-        // Connect to preferred device
-        this.data.getPreferredDevice().then((device) => {
-          if (device) {
-            this.sdk.connect(device).then(() => {
+        setTimeout(() => {
+          // Connect to preferred device
+          this.data.getPreferredDevice().then((device) => {
+            if (device) {
+              this.sdk.connect(device).then(() => {
+                loading.dismiss();
+              }, (err) => {
+                loading.dismiss();
+              });
+            } else {
               loading.dismiss();
-            }, (err) => {
-              loading.dismiss();
-            });
-          } else {
+              this.rootPage = SearchDevicesPage;
+            }
+          }, (error) => {
             loading.dismiss();
-            this.rootPage = SearchDevicesPage;
-          }
-        }, (error) => {
-          loading.dismiss();
-        });
+          });
+        }, 1000);
       });
     });
 
