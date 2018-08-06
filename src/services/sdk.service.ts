@@ -229,33 +229,36 @@ export class SdkService {
    * @param reject Reject callback
    */
   private successCallback(config: any, resolve: any, reject: any): Function {
-    return function (result) {
-      var i, j;
-      var resolved = false;
-      // Need to listen for any event?
+    var i, j;
+    var resolved = false;
+    // Need to listen for any event?
+    if (config.successEvenList && config.successEvenList.length > 0) {
+      // Success listener function
+      var successListener = (res) => {
+        resolved = true;
+        // Unsusbcribe event listeners
+        this.unsubscribe(successListener, errorListener, config.successEvenList, config.errorEvenList);
+        resolve && resolve(res);
+      };
+      // Error listener function
+      var errorListener = (err) => {
+        resolved = true;
+        // Unsusbcribe event listeners
+        this.unsubscribe(successListener, errorListener, config.successEvenList, config.errorEvenList);
+        reject && reject(err);
+      };
+      // Subscribe to all success events for this call
+      for (i = 0; config.successEvenList && i < config.successEvenList.length; i++) {
+        this.events.subscribe(config.successEvenList[i], successListener);
+      }
+      // Subscribe to all error events for this call
+      for (j = 0; config.errorEvenList && j < config.errorEvenList.length; j++) {
+        this.events.subscribe(config.errorEvenList[j], errorListener);
+      }
+    }
+
+    return function(result) {
       if (config.successEvenList && config.successEvenList.length > 0) {
-        // Success listener function
-        var successListener = (res) => {
-          resolved = true;
-          // Unsusbcribe event listeners
-          this.unsubscribe(successListener, errorListener, config.successEvenList, config.errorEvenList);
-          resolve && resolve(res);
-        }
-        // Error listener function
-        var errorListener = (err) => {
-          resolved = true;
-          // Unsusbcribe event listeners
-          this.unsubscribe(successListener, errorListener, config.successEvenList, config.errorEvenList);
-          reject && reject(err);
-        }
-        // Subscribe to all success events for this call
-        for (i = 0; config.successEvenList && i < config.successEvenList.length; i++) {
-          this.events.subscribe(config.successEvenList[i], successListener);
-        }
-        // Subscribe to all error events for this call
-        for (j = 0; config.errorEvenList && j < config.errorEvenList.length; j++) {
-          this.events.subscribe(config.errorEvenList[j], errorListener);
-        }
         // Set timeout functions if exists
         if (config.timeout) {
           setTimeout(() => {
@@ -264,14 +267,14 @@ export class SdkService {
               // Unsusbcribe event listeners
               this.unsubscribe(successListener, errorListener, config.successEvenList, config.errorEvenList);
               // Reject Promise because of timeout
-              reject();
+              reject("Operation timeout");
             }
           }, config.timeout);
         }
       } else {
         resolve(result);
       }
-    }
+    };
   }
 
   /**
